@@ -23,7 +23,6 @@ SPage {
         id: scene
         anchors.fill: parent
         focus: true
-        camera_Orientation: VTKScene.BottomView
 
         onToggleWindow:{
             if(root.visibility === Window.FullScreen){
@@ -39,7 +38,9 @@ SPage {
             rect.visible = ! rect.visible
         }
 
-
+        Component.onCompleted: {
+            scene.camera_Orientation = VTKScene.LeftView
+        }
     }
 
     ScrollView {

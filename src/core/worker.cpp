@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <sstream>
 
-Worker::Worker(QJsonObject obj, QObject *parent) : QObject(parent),job(obj)
+Worker::Worker(QString obj, QObject *parent) : QObject(parent),pipeline(obj)
 {
 
 }
@@ -14,12 +14,10 @@ Worker::~Worker()
 
 void Worker::process()
 {
-    QJsonDocument doc(job);
-    std::stringstream ss(doc.toJson().toStdString());
+    std::stringstream ss(pipeline.toStdString());
     manager.readPipeline(ss);
 
     qDebug() << manager.execute();
 
-    pdal::FileUtils::deleteFile("");
 }
 

@@ -20,6 +20,8 @@ public slots:
     void start(QJsonObject json);
     void testFile(QString filename);
 
+    int convertFormat(const QString &srcfile, const QString &dstfile);
+
 private:
     QHash<QDateTime,Worker*> pool;
 };

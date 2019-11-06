@@ -218,7 +218,7 @@ void QVTKFBORenderer::setCamera(QVTKFBOItem::Orientation orit)
     m_renderer->GetActiveCamera()->SetPosition(eye);
     m_renderer->GetActiveCamera()->SetFocalPoint(center);
     m_renderer->GetActiveCamera()->SetViewUp(top);
-    render();
+//    render();
 }
 
 void QVTKFBORenderer::updateCamera(double x, double y, double z)

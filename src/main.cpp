@@ -55,8 +55,9 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
-    engine.load(url);
+
     engine.rootContext()->setContextProperty("backend",&master);
+    engine.load(url);
 
     return QGuiApplication::exec();
 }

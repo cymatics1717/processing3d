@@ -3,7 +3,7 @@
 
 QVTKFBOItem::QVTKFBOItem()
 {
-    startTimer(100);
+//    startTimer(100);
     installEventFilter(this);
     setMirrorVertically(true);
     setAcceptedMouseButtons(Qt::AllButtons);
@@ -16,6 +16,7 @@ QVTKFBOItem::QVTKFBOItem()
              |QQuickItem::ItemHasContents);
     qRegisterMetaType<QVTKFBOItem::Orientation>("Orientation");
 
+    connect(this, &QVTKFBOItem::cameraOrientationChanged, &QVTKFBOItem::update);
 }
 
 QQuickFramebufferObject::Renderer *QVTKFBOItem::createRenderer() const

@@ -48,4 +48,7 @@ SPage {
         anchors.verticalCenter: parent.verticalCenter
     }
 
+    Component.onCompleted: {
+//        backend.testFile("");
+    }
 }

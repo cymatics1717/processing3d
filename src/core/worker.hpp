@@ -12,7 +12,7 @@ class Worker : public QObject
 {
     Q_OBJECT
 public:
-    explicit Worker(QJsonObject obj, QObject *parent = nullptr);
+    explicit Worker(QString obj, QObject *parent = nullptr);
     ~Worker();
 
 signals:
@@ -20,7 +20,7 @@ signals:
 public slots:
     void process();
 private:
-    QJsonObject job;
+    QString pipeline;
     pdal::PipelineManager manager;
 };
 
