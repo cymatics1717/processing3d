@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>src/qml/main.qml</file>
+        <file>src/qml/HomeForm.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>src/qml/SPage.qml</file>
+        <file>src/qml/Page3Form.qml</file>
+        <file>src/qml/TButton.qml</file>
+        <file>src/qml/ImageItem.qml</file>
+        <file>src/qml/Page6Form.qml</file>
+        <file>res/ccViewIso1.png</file>
+        <file>res/ccViewIso2.png</file>
+        <file>res/ccViewXneg.png</file>
+        <file>res/ccViewXpos.png</file>
+        <file>res/ccViewYneg.png</file>
+        <file>res/ccViewYpos.png</file>
+        <file>res/ccViewZneg.png</file>
+        <file>res/ccViewZpos.png</file>
+    </qresource>
+</RCC>
