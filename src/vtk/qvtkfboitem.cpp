@@ -3,7 +3,7 @@
 
 QVTKFBOItem::QVTKFBOItem()
 {
-    startTimer(300);
+    startTimer(100);
     installEventFilter(this);
     setMirrorVertically(true);
     setAcceptedMouseButtons(Qt::AllButtons);

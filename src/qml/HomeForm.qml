@@ -27,11 +27,23 @@ SPage {
         }
     }
 
+    TButton {
+        id: test
+        text: qsTr("测试")
+        width: parent.width/15
+        height: parent.height/15
+        anchors.top: container.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        onClicked: {
+            backend.testFile("/home/wayne/3d/github/PDAL/build/test/data/pipeline/splitter.json");
+        }
+    }
+
     Label {
         id:info
         text: qsTr("本软件用来预览全景图片和点云.\n 'F'/Enter to toggle fullscreen.\n 'q' to quit application")
         color: "white"
-//        anchors.top: container.bottom
+        anchors.top: test.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
     }

@@ -27,6 +27,7 @@ Rectangle {
 
     Image {
         id: icon
+        asynchronous: true
         anchors.horizontalCenter:  parent.horizontalCenter
         anchors.verticalCenter:   parent.verticalCenter
         fillMode: Image.PreserveAspectFit

@@ -1,9 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+
 #include "eventbus.hpp"
 #include "opengl/openglquickitem.hpp"
 #include "vtk/qvtkfboitem.hpp"
-
+#include "core/master.hpp"
 #include "video/videoitem.hpp"
 
 int main(int argc, char *argv[])
@@ -41,8 +43,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<videoItem>("SceneGraphRendering", 1, 0, "VideoSource");
 
     QQmlApplicationEngine engine;
+    Master master;
 //    eventBus bus;
 //    app.installEventFilter(&bus);
+
     qDebug() << &engine;
 
     const QUrl url(QStringLiteral("qrc:/src/qml/main.qml"));
@@ -52,6 +56,7 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
+    engine.rootContext()->setContextProperty("backend",&master);
 
     return QGuiApplication::exec();
 }

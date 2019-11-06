@@ -212,7 +212,7 @@ int Model::loadPano()
     auto texture = vtkSmartPointer<vtkTexture>::New();
     texture->SetInputConnection(imageReader->GetOutputPort());
 
-    double translate[3] = {1, 0, 0};
+    double translate[3] = {0, 0, 0};
 
     auto transformTexture = vtkSmartPointer<vtkTransformTextureCoords>::New();
     transformTexture->SetInputConnection(source->GetOutputPort());

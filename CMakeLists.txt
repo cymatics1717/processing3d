@@ -47,6 +47,10 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     )
 #add_definitions(${PCL_DEFINITIONS})
+find_package(PDAL REQUIRED)
+#include_directories(${PDAL_INCLUDE_DIRS})
+#link_directories(${PDAL_LIBRARY_DIRS})
+add_definitions(${PDAL_DEFINITIONS})
 
 
 file(GLOB SRC_FILES
@@ -54,6 +58,7 @@ file(GLOB SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/vtk/*.cpp
     ${PROJECT_SOURCE_DIR}/src/opengl/*.cpp
     ${PROJECT_SOURCE_DIR}/src/video/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/core/*.cpp
     ${PROJECT_SOURCE_DIR}/*.cpp
     )
 
@@ -65,5 +70,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${OpenCV_LIBRARIES}
     ${VTK_LIBRARIES}
     ${PCL_LIBRARIES}
+    ${PDAL_LIBRARIES}
     ${Boost_LIBRARIES}
     )
