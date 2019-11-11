@@ -25,14 +25,14 @@ public:
 
     void initialize() override;
     void render() override;
-    virtual void mousePressEvent(std::shared_ptr<QEvent> event) override;
-    virtual void mouseMoveEvent(std::shared_ptr<QEvent> event) override;
-    virtual void mouseReleaseEvent(std::shared_ptr<QEvent> event) override;
-    virtual void mouseDoubleClickEvent(std::shared_ptr<QEvent> event) override;
-    virtual void keyPressEvent(std::shared_ptr<QEvent> event) override;
-    virtual void keyReleaseEvent(std::shared_ptr<QEvent> event) override;
-    virtual void wheelEvent(std::shared_ptr<QEvent> event) override;
-    virtual void touchEvent(std::shared_ptr<QEvent> event) override;
+    void mousePressEvent(std::shared_ptr<QEvent> event) override;
+    void mouseMoveEvent(std::shared_ptr<QEvent> event) override;
+    void mouseReleaseEvent(std::shared_ptr<QEvent> event) override;
+    void mouseDoubleClickEvent(std::shared_ptr<QEvent> event) override;
+    void keyPressEvent(std::shared_ptr<QEvent> event) override;
+    void keyReleaseEvent(std::shared_ptr<QEvent> event) override;
+    void wheelEvent(std::shared_ptr<QEvent> event) override;
+    void touchEvent(std::shared_ptr<QEvent> event) override;
 
 
 signals:

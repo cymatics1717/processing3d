@@ -47,7 +47,9 @@
 #include <vtkFloatArray.h>
 #include <vtkDataSetMapper.h>
 #include <vtkLODActor.h>
+#include <vtkTexture.h>
 #include <vtkTexturedSphereSource.h>
+#include <vtkTextureMapToSphere.h>
 #include <vtkTransformTextureCoords.h>
 #include <QUrl>
 
@@ -86,9 +88,7 @@ void Model::load()
     QFileInfo info(filename);
     qDebug() << "******************: "<< filename;
     int result = 0;
-    if(info.isDir()){
-        loadVolume();
-    } else if(info.isFile()){
+    if(info.isFile()){
         if(info.suffix().toLower()=="obj" || info.suffix().toLower()=="stl") {
             loadMesh();
         } else if(info.suffix().toLower()=="ply"||info.suffix().toLower()=="pcd"){
@@ -176,6 +176,9 @@ int Model::loadPrimitive()
     if (filename == "axes") {
         // Axes
         vtkSmartPointer<vtkAxesActor> axes = vtkSmartPointer<vtkAxesActor>::New();
+        axes->SetXAxisLabelText("XX");
+        axes->SetYAxisLabelText("YY");
+        axes->SetZAxisLabelText("ZZ");
         double axes_length = 20.0;
         int16_t axes_label_font_size = 10;
         axes->SetTotalLength(axes_length, axes_length, axes_length);
@@ -197,165 +200,45 @@ int Model::loadPrimitive()
 int Model::loadPano()
 {
     std::string stdstr = filename.toStdString();
-    static vtkSmartPointer<vtkTexturedSphereSource> source = nullptr;
-    if(source == nullptr){
-        source = vtkSmartPointer<vtkTexturedSphereSource>::New();
-        source->SetRadius(1000);
-        source->SetPhiResolution(100);
-        source->SetThetaResolution(100);
-    }
-
     vtkSmartPointer<vtkImageReader2Factory> readerFactory = vtkSmartPointer<vtkImageReader2Factory>::New();
     vtkSmartPointer<vtkImageReader2> imageReader = readerFactory->CreateImageReader2(stdstr.c_str());
-    imageReader->SetFileName(stdstr.c_str());
 
-    auto texture = vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputConnection(imageReader->GetOutputPort());
+    if (imageReader) {
+        imageReader->SetFileName(stdstr.c_str());
+        static vtkSmartPointer<vtkTexturedSphereSource> source = nullptr;
+        if(source == nullptr){
+            source = vtkSmartPointer<vtkTexturedSphereSource>::New();
+            source->SetRadius(100);
+            source->SetPhiResolution(20);
+            source->SetThetaResolution(20);
+        }
 
-    double translate[3] = {0, 0, 0};
+        auto texture = vtkSmartPointer<vtkTexture>::New();
+        texture->SetInputConnection(imageReader->GetOutputPort());
 
-    auto transformTexture = vtkSmartPointer<vtkTransformTextureCoords>::New();
-    transformTexture->SetInputConnection(source->GetOutputPort());
-    transformTexture->SetPosition(translate);
-    transformTexture->SetFlipR(true);
-    transformTexture->SetFlipS(false);
-    transformTexture->SetFlipT(true);
+        //    auto texturemap = vtkSmartPointer<vtkTextureMapToSphere>::New();
+        //    texturemap->SetInputConnection(source->GetOutputPort());
+        //    texturemap->SetCenter(0.5, 0.5, 0.5);
+        //    texturemap->SetPreventSeam(true);
+        //    texturemap->SetAutomaticSphereGeneration(true);
 
-    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(transformTexture->GetOutputPort());
-    auto actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->SetTexture(texture);
-    manager->getRenderer()->AddViewProp(actor);
-    prop = actor;
-    manager->insertModel(prop.Get(), this);
-}
+        //    double translate[3] = {0, 0, 0};
+        auto transformTexture = vtkSmartPointer<vtkTransformTextureCoords>::New();
+        transformTexture->SetInputConnection(source->GetOutputPort());
+        //    transformTexture->SetPosition(translate);
+        transformTexture->SetFlipR(true);
+        transformTexture->SetFlipS(false);
+        transformTexture->SetFlipT(true);
 
-int Model::loadVolume()
-{
-    vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
+        auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetInputConnection(transformTexture->GetOutputPort());
 
-    // Create the reader for the data
-    vtkSmartPointer<vtkDICOMImageReader> reader = vtkSmartPointer<vtkDICOMImageReader>::New();
-    reader->SetDirectoryName(filename.toStdString().c_str());
-    reader->Update();
-
-    if(reader){
-        // Create transfer mapping scalar value to opacity
-        vtkSmartPointer<vtkPiecewiseFunction> opacityTransferFunction =
-                vtkSmartPointer<vtkPiecewiseFunction>::New();
-//        opacityTransferFunction->AddPoint(0,    0.00);
-//        opacityTransferFunction->AddPoint(500,  0.15);
-//        opacityTransferFunction->AddPoint(1000, 0.15);
-//        opacityTransferFunction->AddPoint(1150, 0.85);
-
-        opacityTransferFunction->AddPoint(-3024, 0, 0.5, 0.0 );
-        opacityTransferFunction->AddPoint(-16, 0, .49, .61 );
-        opacityTransferFunction->AddPoint(641, .72, .5, 0.0 );
-        opacityTransferFunction->AddPoint(3071, .71, 0.5, 0.0);
-
-        // Create transfer mapping scalar value to color
-        vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-                vtkSmartPointer<vtkColorTransferFunction>::New();
-//        colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
-//        colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
-//        colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
-//        colorTransferFunction->AddRGBPoint(192.0, 0.0, 0.5, 0.0);
-//        colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
-
-        colorTransferFunction->AddRGBPoint( -3024, 0, 0, 0, 0.5, 0.0 );
-        colorTransferFunction->AddRGBPoint( -16, 0.73, 0.25, 0.30, 0.49, .61 );
-        colorTransferFunction->AddRGBPoint( 641, .90, .82, .56, .5, 0.0 );
-        colorTransferFunction->AddRGBPoint( 3071, 1, 1, 1, .5, 0.0 );
-
-
-        vtkSmartPointer<vtkPiecewiseFunction> volumeGradientOpacity =
-          vtkSmartPointer<vtkPiecewiseFunction>::New();
-        volumeGradientOpacity->AddPoint(0,   0.0);
-        volumeGradientOpacity->AddPoint(90,  0.5);
-        volumeGradientOpacity->AddPoint(100, 1.0);
-
-        // The property describes how the data will look
-        vtkSmartPointer<vtkVolumeProperty> volumeProperty =
-                vtkSmartPointer<vtkVolumeProperty>::New();
-        volumeProperty->SetColor(colorTransferFunction);
-        volumeProperty->SetScalarOpacity(opacityTransferFunction);
-        volumeProperty->ShadeOff();
-        volumeProperty->SetInterpolationTypeToLinear();
-        volumeProperty->SetGradientOpacity(volumeGradientOpacity);
-//        volumeProperty->SetAmbient(0.4);
-//        volumeProperty->SetDiffuse(0.6);
-//        volumeProperty->SetSpecular(0.2);
-//        volumeProperty->SetScalarOpacityUnitDistance(1.0);
-
-
-        volumeProperty->ShadeOn();
-        volumeProperty->SetAmbient(0.1);
-        volumeProperty->SetDiffuse(0.9);
-        volumeProperty->SetSpecular(0.2);
-        volumeProperty->SetSpecularPower(10.0);
-        volumeProperty->SetScalarOpacityUnitDistance(0.8919);
-
-
-        // The mapper / ray cast function know how to render the data
-        vtkSmartPointer<vtkFixedPointVolumeRayCastMapper> volumeMapper =
-                vtkSmartPointer<vtkFixedPointVolumeRayCastMapper>::New();
-        volumeMapper->SetInputConnection(reader->GetOutputPort());
-        volumeMapper->SetBlendModeToComposite();
-
-//        vtkSmartPointer<vtkHAVSVolumeMapper> volumeMapper =
-//          vtkSmartPointer<vtkHAVSVolumeMapper>::New();
-//        volumeMapper->SetInputConnection(reader->GetOutputPort());
-//        volumeMapper->SetLevelOfDetail(false);
-//        volumeMapper->SetGPUDataStructures(false);
-//        volumeMapper->SetKBufferSizeTo2();
-
-
-//        double opacityWindow = 4096;
-//        double opacityLevel = 2048;
-//        colorTransferFunction->AddRGBSegment(0.0, 1.0, 1.0, 1.0, 255.0, 1.0, 1.0, 1.0 );
-//        opacityTransferFunction->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0,
-//                                             opacityLevel + 0.5*opacityWindow, 1.0 );
-//        volumeMapper->SetBlendModeToMaximumIntensity();
-
-        // The volume holds the mapper and the property and
-        // can be used to position/orient the volume
-        vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
-        volume->SetMapper(volumeMapper);
-        volume->SetProperty(volumeProperty);
-        volume->SetPickable(true);
-
-        manager->getRenderer()->AddViewProp(volume);
-
-//        manager->getRenderer()->AddVolume(volume);
-        prop = volume;
-        manager->insertModel(prop.Get(),this);
-
-
-
-//        vtkSmartPointer<vtkImageSliceMapper> imageSliceMapper = vtkSmartPointer<vtkImageSliceMapper>::New();
-    //    imageSliceMapper->SetInputData(colorImage);
-//        imageSliceMapper->SetInputConnection(reader->GetOutputPort());
-//        vtkSmartPointer<vtkImageSlice> imageSlice = vtkSmartPointer<vtkImageSlice>::New();
-
-//        imageSlice->SetMapper(imageSliceMapper);
-//        manager->getRenderer()->AddViewProp(imageSlice);
-//        vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
-//        manager->getRenderer()->GetRenderWindow()->GetInteractor()->SetInteractorStyle(style);
-
-
-//        vtkSmartPointer<vtkImageActor> actor_img = vtkSmartPointer<vtkImageActor>::New();
-//        actor_img->SetInputData(imageSlice);
-//        actor_img->SetOpacity(.5);
-//        actor_img->SetPickable(true);
-//        int *a =input->GetDimensions();
-//        qDebug() << a[0] << a[1];
-//        //          actor_img->SetOrigin(a[0]/2,a[1]/2,0);
-//        actor_img->SetPosition(-a[0]/2,-a[1]/2,0);
-//        manager->getRenderer()->AddActor(actor_img);
-        return 0;
-    } else {
-        return -1;
+        auto actor = vtkSmartPointer<vtkActor>::New();
+        actor->SetMapper(mapper);
+        actor->SetTexture(texture);
+        manager->getRenderer()->AddViewProp(actor);
+        //    prop = actor;
+        manager->insertModel(prop.Get(), this);
     }
 }
 
@@ -424,7 +307,7 @@ int Model::loadMesh()
         reader->Update();
         inputData = reader->GetOutput();
     } else if (info.suffix().toLower() == "ply") {
-        // Read STL file
+        // Read PLY file
         auto reader = vtkSmartPointer<vtkPLYReader>::New();
         reader->SetFileName ( filename.toStdString().c_str());
         reader->Update();

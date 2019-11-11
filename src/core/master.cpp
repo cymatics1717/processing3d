@@ -32,6 +32,7 @@ Master::Master(QObject *parent) : QObject(parent)
 
 Master::~Master()
 {
+    qDebug() << "";
     qDeleteAll(pool);
 }
 
@@ -45,7 +46,7 @@ void Master::start(QJsonObject json)
     worker->moveToThread(job);
     connect(job, &QThread::started, worker, &Worker::process);
     connect(job, &QThread::finished, job, &QThread::deleteLater);
-    connect(job, &QThread::finished, worker, &Worker::deleteLater);
+//    connect(job, &QThread::finished, worker, &Worker::deleteLater);
     job->start();
     qDebug() << "done.";
 
@@ -55,7 +56,9 @@ void Master::testFile(QString filename)
 {
     //    start(string2json(fileReadAll(filename)));
 
-    convertFormat("/home/wayne/3d/Cloud2.e57", "/home/wayne/3d/Cloud2.pcd");
+    convertFormat("/home/wayne/3d/Cloud2.e57",
+                  QString("/home/wayne/3d/Cloud2-%1.pcd")
+                      .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz")));
 }
 
 int Master::convertFormat(const QString &srcfile, const QString &dstfile)

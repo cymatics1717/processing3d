@@ -245,7 +245,7 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item)
     {
         while (!m_fboItem->events.empty()) {
             auto e = m_fboItem->events.takeFirst();
-            qDebug() << e.get();
+//            qDebug() << e.get();
             e->accept();
             m_dapter->ProcessEvent(e.get(), renderWindow->GetInteractor());
             if(e->type() ==QEvent::MouseButtonPress){

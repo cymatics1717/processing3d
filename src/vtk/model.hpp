@@ -24,7 +24,6 @@ public slots:
 
 private:
     int loadPrimitive();
-    int loadVolume();
     int loadImage();
     int loadMesh();
     int loadCloud();
