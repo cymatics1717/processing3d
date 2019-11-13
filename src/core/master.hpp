@@ -22,6 +22,9 @@ public slots:
 
     int convertFormat(const QString &srcfile, const QString &dstfile);
 
+    int E57ToPLY(const QString &srcfile, const QString &dstfile);
+    int PLYToPCD(const QString &srcfile, const QString &dstfile);
+
 private:
     QHash<QDateTime,Worker*> pool;
 };

@@ -27,6 +27,7 @@ private:
     int loadImage();
     int loadMesh();
     int loadCloud();
+    int loadCloudPdal();
 private:
     QString filename;
     vtkSmartPointer<vtkProp3D> prop;

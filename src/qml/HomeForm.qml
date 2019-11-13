@@ -35,7 +35,8 @@ SPage {
         anchors.top: container.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         onClicked: {
-            backend.testFile("/home/wayne/3d/github/PDAL/build/test/data/pipeline/splitter.json");
+            backend.testFile("");
+//            backend.testFile("/home/wayne/3d/github/PDAL/build/test/data/pipeline/splitter.json");
         }
     }
 

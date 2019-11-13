@@ -56,9 +56,12 @@ void Master::testFile(QString filename)
 {
     //    start(string2json(fileReadAll(filename)));
 
-    convertFormat("/home/wayne/3d/Cloud2.e57",
-                  QString("/home/wayne/3d/Cloud2-%1.pcd")
-                      .arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz")));
+//    convertFormat("/home/wayne/3d/Cloud2.ply",QString("/home/wayne/3d/Cloud2-%1.ply").arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz")));
+//    E57ToPLY("/home/wayne/3d/cloud/pointcloud-merged.e57",QString("/home/wayne/3d/pointcloud-%1.ply").arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz")));
+    PLYToPCD("/home/wayne/3d/Cloud2.ply",QString("/home/wayne/3d/Cloud21.pcd"));
+
+
+
 }
 
 int Master::convertFormat(const QString &srcfile, const QString &dstfile)
@@ -73,3 +76,47 @@ int Master::convertFormat(const QString &srcfile, const QString &dstfile)
 
     return 0;
 }
+
+int Master::E57ToPLY(const QString &srcfile, const QString &dstfile)
+{
+    qDebug() << "";
+    QJsonArray pipeline;
+    QJsonObject src;
+    src["type"] = "readers.e57";
+    src["filename"] = srcfile;
+    QJsonObject dst;
+    dst["type"] = "writers.ply";
+    dst["storage_mode"] = "little endian";
+    dst["filename"] = dstfile;
+    pipeline.append(src);
+    pipeline.append(dst);
+
+    QJsonObject obj;
+    obj["pipeline"] = pipeline;
+    start(obj);
+
+    return 0;
+}
+
+int Master::PLYToPCD(const QString &srcfile, const QString &dstfile)
+{
+    qDebug() << "";
+    QJsonArray pipeline;
+    QJsonObject src;
+    src["type"] = "readers.ply";
+    src["filename"] = srcfile;
+    QJsonObject dst;
+    dst["type"] = "writers.pcd";
+    dst["compression"] = "binary";
+    dst["filename"] = dstfile;
+    pipeline.append(src);
+    pipeline.append(dst);
+
+    QJsonObject obj;
+    obj["pipeline"] = pipeline;
+    start(obj);
+
+    return 0;
+}
+
+

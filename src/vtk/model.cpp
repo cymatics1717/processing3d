@@ -86,34 +86,39 @@ void Model::load()
 //    loadPointSource();
 //    return;
     QFileInfo info(filename);
-    qDebug() << "******************: "<< filename;
+    auto suffix = info.suffix().toLower();
     int result = 0;
-    if(info.isFile()){
-        if(info.suffix().toLower()=="obj" || info.suffix().toLower()=="stl") {
-            loadMesh();
-        } else if(info.suffix().toLower()=="ply"||info.suffix().toLower()=="pcd"){
-            loadCloud();
+    if(!suffix.isEmpty()){
+        if(suffix =="obj" || suffix =="stl") {
+            result = loadMesh();
+        } else if(suffix == "ply" || suffix == "pcd"){
+            result = loadCloud();
         } else {
 //            loadImage();
-            loadPano();
+            result = loadPano();
         }
     } else {
-        loadPrimitive();
+        result = loadPrimitive();
     }
 
     done(filename,result);
 }
 
+
 int Model::loadCloud()
 {
+    qDebug() << "******************: "<< filename;
     QString source = QUrl(filename).path();
-    if(source.at(0)!=':'&&source.contains(':')){
-        source.remove(0,1);
-    }
-    using pointType = pcl::PointXYZRGBA;
+//    if(source.at(0)!=':'&&source.contains(':')){
+//        source.remove(0,1);
+//    }
+    qDebug() << "******************: "<< filename;
+    using pointType = pcl::PointXYZRGB;
     pcl::PointCloud<pointType>::Ptr cloud(new pcl::PointCloud<pointType>);
+
     int res = pcl::io::load<pointType>(source.toStdString(), *cloud);
-    qDebug() << res;
+//    int res = pcl::PLYReader::read(source.toStdString(), *cloud);
+    qDebug() <<source<<filename<< res;
     if(res == -1) // load the file
     {
         pcl::console::print_error ("Couldn't read file %s!\n", source.toStdString().c_str());
@@ -171,6 +176,11 @@ int Model::loadCloud()
     manager->insertModel(actor, this);
 }
 
+int Model::loadCloudPdal()
+{
+
+}
+
 int Model::loadPrimitive()
 {
     if (filename == "axes") {
@@ -208,7 +218,7 @@ int Model::loadPano()
         static vtkSmartPointer<vtkTexturedSphereSource> source = nullptr;
         if(source == nullptr){
             source = vtkSmartPointer<vtkTexturedSphereSource>::New();
-            source->SetRadius(100);
+            source->SetRadius(1000);
             source->SetPhiResolution(20);
             source->SetThetaResolution(20);
         }

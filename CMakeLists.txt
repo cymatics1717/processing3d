@@ -13,6 +13,8 @@ find_package(OpenCV REQUIRED)
 
 #set (VTK_DIR "/home/wayne/github/build-VTK-master" CACHE PATH "VTK directory override" FORCE)
 
+set(VTKVERSION 8.1.2)
+#set(VTKVERSION 8.2.0)
 
 find_package(VTK ${VTKVERSION} EXACT REQUIRED
     COMPONENTS
