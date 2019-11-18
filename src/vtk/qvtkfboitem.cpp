@@ -5,7 +5,7 @@ QVTKFBOItem::QVTKFBOItem()
 {
 //    startTimer(100);
     installEventFilter(this);
-    setMirrorVertically(true);
+//    setMirrorVertically(true);
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptTouchEvents(true);
 //    setAcceptHoverEvents(true);

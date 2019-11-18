@@ -1,7 +1,7 @@
 #include "qvtkfborenderer.hpp"
 #include "cellpickinteractorstyle.hpp"
 #include "proppickinteractorstyle.hpp"
-
+#include <vtkPointPicker.h>
 #include <QOpenGLFramebufferObject>
 #include <QQuickWindow>
 #include <memory>
@@ -51,9 +51,9 @@ QVTKFBORenderer::QVTKFBORenderer(QObject *parent) : QObject(parent), manager(new
                                                     selectedMouse(nullptr), mfactor(500) {
     qDebug() << vtkVersion::GetVTKSourceVersion();
     // Renderer
-    vtkSmartPointer<QVTKInteractor> mInteractor = vtkSmartPointer<QVTKInteractor>::New();
+    m_Interactor = vtkSmartPointer<QVTKInteractor>::New();
 
-    mInteractor->EnableRenderOff();
+    m_Interactor->EnableRenderOff();
     renderWindow = vtkSmartPointer<vtkExternalOpenGLRenderWindow>::New();
     renderWindow->AddRenderer(m_renderer);
     renderWindow->OpenGLInitContext();
@@ -61,7 +61,7 @@ QVTKFBORenderer::QVTKFBORenderer(QObject *parent) : QObject(parent), manager(new
 
 //    renderWindow->SetReadyForRendering(false);
 //    renderWindow->SetForceMaximumHardwareLineWidth(1);
-    renderWindow->SetInteractor(mInteractor);
+    renderWindow->SetInteractor(m_Interactor);
 
 
 //        vtkSmartPointer<cellPickInteractorStyle> style = vtkSmartPointer<cellPickInteractorStyle>::New();
@@ -70,9 +70,9 @@ QVTKFBORenderer::QVTKFBORenderer(QObject *parent) : QObject(parent), manager(new
     style->SetDefaultRenderer(m_renderer);
 //    style->SetMotionFactor(10.0);
 //    style->setParent(this);
-    mInteractor->SetInteractorStyle(style);
+    m_Interactor->SetInteractorStyle(style);
 
-    mInteractor->Initialize();
+    m_Interactor->Initialize();
     // Initial camera position
     resetCamera();
 
@@ -247,8 +247,17 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
             e->accept();
             QMouseEvent *mouse = static_cast<QMouseEvent *>(e.get());
             if (mouse) {
-                if(mouse->type() ==QEvent::MouseButtonDblClick)
-                qDebug() <<mouse->type()<< mouse << (mouse->flags()==Qt::MouseEventCreatedDoubleClick);
+                if(mouse->type() ==QEvent::MouseButtonDblClick){
+                    qDebug() <<mouse->type()<< mouse << (mouse->flags()==Qt::MouseEventCreatedDoubleClick);
+                } else if(mouse->type() ==QEvent::MouseButtonPress){
+                    qDebug() << "Picking pixel: " << mouse << m_Interactor->GetEventPosition()[0] << " "<< m_Interactor->GetEventPosition()[1];
+                    m_Interactor->GetPicker()->Pick(mouse->x(),mouse->y(),0,  // always zero.
+                                                    m_Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+                    double picked[3];
+                    m_Interactor->GetPicker()->GetPickPosition(picked);
+                    emit m_fboItem->pickedPoint3d({float(picked[0]),float(picked[1]),float(picked[2])});
+//                    std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
+                }
             }
 
             m_dapter->ProcessEvent(e.get(), renderWindow->GetInteractor());

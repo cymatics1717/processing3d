@@ -46,6 +46,7 @@ private:
 
     vtkSmartPointer<vtkExternalOpenGLRenderWindow> renderWindow;
     QVTKInteractorAdapter* m_dapter;
+    vtkSmartPointer<QVTKInteractor> m_Interactor;
     vtkSmartPointer<vtkRenderer> m_renderer;
 
     std::shared_ptr<QEvent> selectedMouse;

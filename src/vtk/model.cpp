@@ -235,7 +235,7 @@ int Model::loadPano()
         auto transformTexture = vtkSmartPointer<vtkTransformTextureCoords>::New();
         transformTexture->SetInputConnection(source->GetOutputPort());
         //    transformTexture->SetPosition(translate);
-        transformTexture->SetFlipR(true);
+        transformTexture->SetFlipR(false);
         transformTexture->SetFlipS(false);
         transformTexture->SetFlipT(true);
 

@@ -38,6 +38,7 @@ signals:
     void clicked();
     void cameraOrientationChanged(Orientation oritation);
     void poseChanged(QQuaternion pose);
+    void pickedPoint3d(QVector3D picked);
 
 protected:
     bool eventFilter(QObject *object, QEvent *evt) override;

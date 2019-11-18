@@ -46,6 +46,10 @@ SPage {
         onMessage: {
             corner.text = msg
         }
+        onPickedPoint3d: {
+            console.log(picked)
+            corner.text ="picked point: ("+ picked.x.toFixed(3) +","+ picked.y.toFixed(3)+"," + picked.z.toFixed(3)+")"
+        }
         Component.onCompleted: {
             scene.camera_Orientation = VTKScene.LeftView
         }
@@ -114,7 +118,7 @@ SPage {
 //        easing.type: Easing.InOutElastic;
         onProgressChanged: {
 //            scene.pose = slerp(start, end, progress)
-            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(1,0,0))
+            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
 //            scene.pose = Qt.quaternion.slerp(
 //                        Qt.quaternion(0,Qt.vector3d(0,0,1)),
 //                        Qt.quaternion(1,Qt.vector3d(0,0,1)),progress)
