@@ -64,11 +64,7 @@ void rendererproxy::synchronize(QQuickFramebufferObject *item)
     while (!m_quickItem->events.empty()) {
         auto e = m_quickItem->events.takeFirst();
         e->accept();
-
-        const QEvent::Type t = e->type();
-        if(callbacks.contains(t)){
-            callbacks.value(t)(e);
-        }
+//        callbacks.value(e->type(),std::bind(&OpenGLObject::idleEvent, obj,std::placeholders::_1))(e);
     }
 
     m_quickItem->window()->resetOpenGLState();

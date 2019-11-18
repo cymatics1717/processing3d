@@ -19,6 +19,8 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkProp3DCollection.h>
+#include <vtkQuaternion.h>
+#include <QTimeLine>
 
 class vtkHoverCallback : public vtkCommand {
 public:
@@ -116,7 +118,7 @@ void QVTKFBORenderer::resetCamera() {
     m_renderer->GetActiveCamera()->SetPosition(0, 0, mfactor);
     m_renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
     m_renderer->GetActiveCamera()->SetViewUp(0.0, mfactor, 0.0);
-//    m_renderer->GetActiveCamera()->Set
+//    m_renderer->GetActiveCamera()->set
 }
 
 void QVTKFBORenderer::initScene() {
@@ -229,11 +231,26 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
         initScene();
     }
 
+    auto trans = vtkSmartPointer<vtkTransform>::New();
+    trans->Identity();
+
+    trans->RotateWXYZ(m_fboItem->m_pose.scalar()
+                      ,m_fboItem->m_pose.x()
+                      ,m_fboItem->m_pose.y()
+                      ,m_fboItem->m_pose.z());
+    m_renderer->GetActiveCamera()->ApplyTransform(trans);
+
+
     if (renderWindow && renderWindow->GetReadyForRendering()) {
         while (!m_fboItem->events.empty()) {
             auto e = m_fboItem->events.takeFirst();
-//            qDebug() << e.get();
             e->accept();
+            QMouseEvent *mouse = static_cast<QMouseEvent *>(e.get());
+            if (mouse) {
+                if(mouse->type() ==QEvent::MouseButtonDblClick)
+                qDebug() <<mouse->type()<< mouse << (mouse->flags()==Qt::MouseEventCreatedDoubleClick);
+            }
+
             m_dapter->ProcessEvent(e.get(), renderWindow->GetInteractor());
             if (e->type() == QEvent::MouseButtonPress) {
                 selectedMouse = e;
@@ -254,7 +271,7 @@ void QVTKFBORenderer::render() {
 //    cnt++;
 //    qDebug() <<cnt<<QString(60,'-')<< __LINE__ << __FUNCTION__;
     if (selectedMouse) {
-        qDebug() << selectedMouse.get();
+//        qDebug() << selectedMouse.get();
         QMouseEvent *mouse = static_cast<QMouseEvent *>(selectedMouse.get());
         if (Qt::LeftButton & mouse->buttons()) {
         } else if (Qt::RightButton & mouse->buttons()) {

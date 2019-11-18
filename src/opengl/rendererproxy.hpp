@@ -10,6 +10,7 @@
 class rendererproxy :  public QObject, public QQuickFramebufferObject::Renderer
 {
     Q_OBJECT
+    typedef std::function<void (std::shared_ptr<QEvent>)> cb;
 public:
     explicit rendererproxy(QObject *parent = nullptr);
 protected:
@@ -23,7 +24,7 @@ private:
     void make_object(QString tag);
 
     OpenGLQuickItem *m_quickItem;
-    QHash<QEvent::Type,std::function<void (std::shared_ptr<QEvent>)>> callbacks;
+    QHash<QEvent::Type,cb> callbacks;
 
 };
 

@@ -35,12 +35,21 @@ SPage {
             stackView.pop();
         }
         onToggleShow: {
+            console.log("")
             rect.visible = ! rect.visible
+            animator.restart()
         }
-
+        onClicked: {
+            console.log("")
+            animator.restart()
+        }
+        onMessage: {
+            corner.text = msg
+        }
         Component.onCompleted: {
             scene.camera_Orientation = VTKScene.LeftView
         }
+
     }
 
     ScrollView {
@@ -89,4 +98,96 @@ SPage {
             console.log("Canceled")
         }
     }
+
+    NumberAnimation  {
+        property quaternion start: eulerToQuaternionXYZ(0, 0,0)
+        property quaternion end: Qt.quaternion(1,90,90,90)/*eulerToQuaternionXYZ(90, 90, 90)*/
+        property real progress: 0
+        id: animator
+        target: animator
+        property: "progress"
+        from: 0.0
+        to: 1.0
+        duration: 1000
+//        running: true
+//        loops:Animation.Infinite
+//        easing.type: Easing.InOutElastic;
+        onProgressChanged: {
+//            scene.pose = slerp(start, end, progress)
+            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(1,0,0))
+//            scene.pose = Qt.quaternion.slerp(
+//                        Qt.quaternion(0,Qt.vector3d(0,0,1)),
+//                        Qt.quaternion(1,Qt.vector3d(0,0,1)),progress)
+        }
+    }
+
+    function angleAxisToQuat(angle, axis) {
+        var k = .5;
+        var m = 5;
+        var a = angle * Math.PI / 180.0;
+        var s = m*Math.sin(a * k);
+        var c = m*Math.cos(a * k);
+        return Qt.quaternion(c, axis.x * s, axis.y * s, axis.z * s);
+    }
+
+    function multiplyQuaternion(q1, q2) {
+        return Qt.quaternion(q1.scalar * q2.scalar - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
+                             q1.scalar * q2.x + q1.x * q2.scalar + q1.y * q2.z - q1.z * q2.y,
+                             q1.scalar * q2.y + q1.y * q2.scalar + q1.z * q2.x - q1.x * q2.z,
+                             q1.scalar * q2.z + q1.z * q2.scalar + q1.x * q2.y - q1.y * q2.x);
+    }
+
+    function eulerToQuaternionXYZ(x, y, z) {
+        var quatX = angleAxisToQuat(x, Qt.vector3d(1, 0, 0));
+        var quatY = angleAxisToQuat(y, Qt.vector3d(0, 1, 0));
+        var quatZ = angleAxisToQuat(z, Qt.vector3d(0, 0, 1));
+        return multiplyQuaternion(multiplyQuaternion(quatX, quatY), quatZ)
+    }
+
+    function slerp(start, end, t) {
+
+        var halfCosTheta = ((start.x * end.x) + (start.y * end.y)) + ((start.z * end.z) + (start.scalar * end.scalar));
+
+        if (halfCosTheta < 0.0)
+        {
+            end.scalar = -end.scalar
+            end.x = -end.x
+            end.y = -end.y
+            end.z = -end.z
+            halfCosTheta = -halfCosTheta;
+        }
+
+        if (Math.abs(halfCosTheta) > 0.999999)
+        {
+            return Qt.quaternion(start.scalar + (t * (end.scalar - start.scalar)),
+                                 start.x      + (t * (end.x      - start.x     )),
+                                 start.y      + (t * (end.y      - start.y     )),
+                                 start.z      + (t * (end.z      - start.z     )));
+        }
+
+        var halfTheta = Math.acos(halfCosTheta);
+        var s1 = Math.sin((1.0 - t) * halfTheta);
+        var s2 = Math.sin(t * halfTheta);
+        var s3 = 1.0 / Math.sin(halfTheta);
+        return Qt.quaternion((s1 * start.scalar + s2 * end.scalar) * s3,
+                             (s1 * start.x      + s2 * end.x     ) * s3,
+                             (s1 * start.y      + s2 * end.y     ) * s3,
+                             (s1 * start.z      + s2 * end.z     ) * s3);
+    }
+
+    function getAxis(quat) {
+        var tmp1 = 1.0 - quat.scalar * quat.scalar;
+        if (tmp1 <= 0) return Qt.vector3d(0.0, 0.0, 1.0);
+        var tmp2 = 1 / Math.sqrt(tmp1);
+        return Qt.vector3d(quat.x * tmp2, quat.y * tmp2, quat.z * tmp2);
+    }
+
+    function getAngle(quat) {
+        return Math.acos(quat.scalar) * 2.0 * 180.0 / Math.PI;
+    }
+
+//    Component.onCompleted: {
+//        animator.start()
+//    }
+
 }

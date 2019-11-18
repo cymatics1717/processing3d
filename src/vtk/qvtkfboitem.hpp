@@ -4,6 +4,7 @@
 #include <QQuickFramebufferObject>
 #include <QVector3D>
 #include <memory>
+#include <QQuaternion>
 
 class QVTKFBORenderer;
 class QVTKFBOItem : public QQuickFramebufferObject
@@ -16,11 +17,13 @@ public:
     };
 
     Q_PROPERTY(Orientation camera_Orientation MEMBER m_camera_Orientation NOTIFY cameraOrientationChanged)
+    Q_PROPERTY(QQuaternion pose MEMBER m_pose NOTIFY poseChanged)
 
     QVTKFBOItem();
     QQuickFramebufferObject::Renderer *createRenderer() const override;
 
     QList<std::shared_ptr<QEvent>> events;
+    QQuaternion m_pose;
 
 public slots:
 signals:
@@ -32,7 +35,9 @@ signals:
     void toggleWindow();
     void toggleShow();
     void stepback();
+    void clicked();
     void cameraOrientationChanged(Orientation oritation);
+    void poseChanged(QQuaternion pose);
 
 protected:
     bool eventFilter(QObject *object, QEvent *evt) override;
@@ -43,7 +48,6 @@ public slots:
 private:
     QVTKFBORenderer *renderer;
     Orientation m_camera_Orientation;
-
 };
 
 #endif // QVTKFBOITEM_HPP

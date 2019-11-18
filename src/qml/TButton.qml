@@ -60,6 +60,33 @@ Rectangle {
         }
     }
 
+    transform: Rotation {
+        id: rot
+    }
+
+    NumberAnimation  {
+        property quaternion start: Qt.quaternion(100,180,180,180)
+        property quaternion end: Qt.quaternion(0,0,0,0)
+        property real progress: 0
+        id: animator
+        target: animator
+        property: "progress"
+        from: 0.0
+        to: 1.0
+        duration: 1000
+        running: true
+//        loops:Animation.Infinite
+        onProgressChanged: {
+            var result = slerp(start, end, progress)
+//             console.log(result)
+            rot.angle = result.scalar
+            rot.axis.x = result.x
+            rot.axis.y = result.y
+            rot.axis.z = result.z
+        }
+    }
+
+
     function fenter(){
 //        console.log(typeof(JSON.stringify(popup.content.source)))
         page.opacity = 0.1
@@ -72,10 +99,42 @@ Rectangle {
             }
         }
     }
+
     function fleave(){
         if(objectName && objectName.length>0){
             opacity = 1
             page.opacity = 1
         }
+    }
+
+    function slerp(start, end, t) {
+
+        var halfCosTheta = ((start.x * end.x) + (start.y * end.y)) + ((start.z * end.z) + (start.scalar * end.scalar));
+
+        if (halfCosTheta < 0.0)
+        {
+            end.scalar = -end.scalar
+            end.x = -end.x
+            end.y = -end.y
+            end.z = -end.z
+            halfCosTheta = -halfCosTheta;
+        }
+
+        if (Math.abs(halfCosTheta) > 0.999999)
+        {
+            return Qt.quaternion(start.scalar + (t * (end.scalar - start.scalar)),
+                                 start.x      + (t * (end.x      - start.x     )),
+                                 start.y      + (t * (end.y      - start.y     )),
+                                 start.z      + (t * (end.z      - start.z     )));
+        }
+
+        var halfTheta = Math.acos(halfCosTheta);
+        var s1 = Math.sin((1.0 - t) * halfTheta);
+        var s2 = Math.sin(t * halfTheta);
+        var s3 = 1.0 / Math.sin(halfTheta);
+        return Qt.quaternion((s1 * start.scalar + s2 * end.scalar) * s3,
+                             (s1 * start.x      + s2 * end.x     ) * s3,
+                             (s1 * start.y      + s2 * end.y     ) * s3,
+                             (s1 * start.z      + s2 * end.z     ) * s3);
     }
 }

@@ -129,6 +129,7 @@ void PCLObject::keyReleaseEvent(std::shared_ptr<QEvent> event)
 void PCLObject::wheelEvent(std::shared_ptr<QEvent> event)
 {
     qDebug() << event.get();
+
     m_dapter->ProcessEvent(event.get(), m_interactor);
 }
 

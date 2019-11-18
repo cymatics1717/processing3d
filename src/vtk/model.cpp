@@ -104,7 +104,6 @@ void Model::load()
     done(filename,result);
 }
 
-
 int Model::loadCloud()
 {
     qDebug() << "******************: "<< filename;

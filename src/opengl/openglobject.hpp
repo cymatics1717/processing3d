@@ -21,6 +21,7 @@ public:
     virtual void reSize(const QSize &size);
     virtual void keyPressEvent(std::shared_ptr<QEvent> event);
     virtual void keyReleaseEvent(std::shared_ptr<QEvent> event);
+    virtual void idleEvent(std::shared_ptr<QEvent> event);
 
     virtual void mousePressEvent(std::shared_ptr<QEvent> event);
     virtual void mouseMoveEvent(std::shared_ptr<QEvent> event);
@@ -29,6 +30,7 @@ public:
 
     virtual void wheelEvent(std::shared_ptr<QEvent> event);
     virtual void touchEvent(std::shared_ptr<QEvent> event);
+
 
 
 //    virtual void focusInEvent(QFocusEvent *);

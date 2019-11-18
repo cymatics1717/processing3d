@@ -32,7 +32,12 @@ void OpenGLObject::keyPressEvent(std::shared_ptr<QEvent> event)
 
 void OpenGLObject::keyReleaseEvent(std::shared_ptr<QEvent> event)
 {
-//    qDebug() << event.get();
+    //    qDebug() << event.get();
+}
+
+void OpenGLObject::idleEvent(std::shared_ptr<QEvent> event)
+{
+     qDebug() << event.get();
 }
 
 void OpenGLObject::mousePressEvent(std::shared_ptr<QEvent> event)

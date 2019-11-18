@@ -7,10 +7,16 @@
 class OpenGLQuickItem : public QQuickFramebufferObject
 {
     Q_OBJECT
+public:
     Q_PROPERTY(QStringList images MEMBER m_images NOTIFY imagesChanged)
 //    Q_PROPERTY(qreal spacing MEMBER m_spacing NOTIFY spacingChanged)
 //    Q_PROPERTY(QString text MEMBER m_text NOTIFY textChanged)
-public:
+    Q_ENUMS(Orientation)
+    enum class Orientation {
+        TopView, BottomView, FrontView,BackView,LeftView,RightView,ISOBackView,ISOFrontView,OriginView
+    };
+
+    Q_PROPERTY(Orientation camera_Orientation MEMBER m_camera_Orientation NOTIFY cameraOrientationChanged)
     OpenGLQuickItem();
     Renderer *createRenderer() const override;
 
@@ -28,6 +34,9 @@ signals:
 //    void incomingMessage(QString msg);
     void setSwitchType(int stype);
     int setPhotoIndex(int idx);
+
+    void cameraOrientationChanged(Orientation oritation);
+
 public slots:
     void onOpenFolder(const QString &file);
 
@@ -36,6 +45,7 @@ protected:
     void handleEvent(std::shared_ptr<QEvent> event);
 private:
     QStringList m_images;
+    Orientation m_camera_Orientation;
 };
 
 #endif // OpenGLQuickItem_HPP

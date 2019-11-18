@@ -17,6 +17,7 @@ QVTKFBOItem::QVTKFBOItem()
     qRegisterMetaType<QVTKFBOItem::Orientation>("Orientation");
 
     connect(this, &QVTKFBOItem::cameraOrientationChanged, &QVTKFBOItem::update);
+    connect(this, &QVTKFBOItem::poseChanged, &QVTKFBOItem::update);
 }
 
 QQuickFramebufferObject::Renderer *QVTKFBOItem::createRenderer() const
@@ -35,6 +36,8 @@ bool QVTKFBOItem::eventFilter(QObject *o, QEvent *e)
 
         if (t == QEvent::MouseButtonDblClick) {
             qDebug() << "QEvent::MouseButtonDblClick......" <<  mouse_event->pos();
+        } else if(t == QEvent::MouseButtonPress&& (mouse_event->button()&Qt::RightButton)==Qt::RightButton){
+            clicked();
         }
         handleEvent(mouse_event);
 
@@ -67,7 +70,7 @@ bool QVTKFBOItem::eventFilter(QObject *o, QEvent *e)
 //    } else if(t == QEvent::ContextMenu){
 //        handleEvent(std::make_shared<QContextMenuEvent>(static_cast<const QContextMenuEvent&>(*e)));
     } else {
-        if(!static_cast<QInputMethodQueryEvent*>(e)){
+        if(not dynamic_cast<QInputMethodQueryEvent*>(e)){
             qDebug()<<QString(30,'+') <<"unhandled event: "<< o << e;
     //        handleEvent(std::make_shared<QEvent>(static_cast<const QEvent&>(*e)));
             return QObject::eventFilter(o,e);

@@ -13,6 +13,7 @@ ApplicationWindow {
     title: qsTr("Stack")
     property var pagemodel: ListModel {
         ListElement { title: qsTr("点云/全景"); source: "Page3Form.qml"; selectFolder:false}
+//        ListElement { title: qsTr("点云"); source: "Page1Form.qml"; selectFolder:false}
         ListElement { title: qsTr("地图"); source: "Page6Form.qml"; selectFolder:false }
     }
 
