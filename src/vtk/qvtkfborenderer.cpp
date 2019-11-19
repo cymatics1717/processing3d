@@ -48,7 +48,10 @@ void vtkHoverCallback::Execute(vtkObject *, unsigned long event, void *vtkNotUse
 QVTKFBORenderer::QVTKFBORenderer(QObject *parent) : QObject(parent), manager(new modelManager(this)),
                                                     m_fboItem(nullptr), m_dapter(new QVTKInteractorAdapter(this)),
                                                     m_renderer(vtkSmartPointer<vtkRenderer>::New()),
-                                                    selectedMouse(nullptr), mfactor(500) {
+                                                    selectedMouse(nullptr), mfactor(100),
+                                                    picker(vtkSmartPointer<vtkPropPicker>::New())
+{
+
     qDebug() << vtkVersion::GetVTKSourceVersion();
     // Renderer
     m_Interactor = vtkSmartPointer<QVTKInteractor>::New();
@@ -115,10 +118,11 @@ void QVTKFBORenderer::resetCamera() {
     QOpenGLFunctions::glUseProgram(0);
 
     m_renderer->ResetCameraClippingRange();
-    m_renderer->GetActiveCamera()->SetPosition(0, 0, mfactor);
+    m_renderer->GetActiveCamera()->SetViewAngle(45);
+    m_renderer->GetActiveCamera()->SetPosition(0, 0, 1);
     m_renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
     m_renderer->GetActiveCamera()->SetViewUp(0.0, mfactor, 0.0);
-//    m_renderer->GetActiveCamera()->set
+
 }
 
 void QVTKFBORenderer::initScene() {
@@ -142,7 +146,7 @@ void QVTKFBORenderer::initScene() {
 //        manager->addModel(PATH"KnotData.stl");
 //    } else {
 //        manager->addModel(PATH"KnotData.stl");
-//    }
+    //    }
 }
 
 void QVTKFBORenderer::selectedModel(QString modelFileName) {
@@ -199,28 +203,18 @@ void QVTKFBORenderer::setCamera(QVTKFBOItem::Orientation orit) {
             break;
         case QVTKFBOItem::Orientation::OriginView:
             eye[0] = 0;
-            eye[1] = 0;
-            eye[2] = 1.0 * mfactor;
+            eye[1] = -1.0 * mfactor;
+            eye[2] = 0;
             top[0] = 0;
-            top[1] = 1.0 * mfactor;
-            top[2] = 0;
+            top[1] = 0;
+            top[2] = 1.0 * mfactor;
             break;
     }
 
     m_renderer->GetActiveCamera()->SetPosition(eye);
     m_renderer->GetActiveCamera()->SetFocalPoint(center);
     m_renderer->GetActiveCamera()->SetViewUp(top);
-//    render();
-}
-
-void QVTKFBORenderer::updateCamera(double x, double y, double z) {
-    double *cam = m_renderer->GetActiveCamera()->GetPosition();
-
-    delta = QVector3D(x - cam[0], y - cam[1], z - cam[2]);
-    counter = 0;
-    total_counter = 1000;
-
-//    update();
+    //    render();
 }
 
 void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
@@ -231,17 +225,24 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
         initScene();
     }
 
-    auto trans = vtkSmartPointer<vtkTransform>::New();
-    trans->Identity();
-
-    trans->RotateWXYZ(m_fboItem->m_pose.scalar()
-                      ,m_fboItem->m_pose.x()
-                      ,m_fboItem->m_pose.y()
-                      ,m_fboItem->m_pose.z());
-    m_renderer->GetActiveCamera()->ApplyTransform(trans);
-
-
     if (renderWindow && renderWindow->GetReadyForRendering()) {
+
+
+        //    vtkQuaterniond tmp;
+        //    animator->InterpolateQuaternion(m_fboItem->m_progress, tmp);
+
+            auto trans = vtkSmartPointer<vtkTransform>::New();
+            trans->Identity();
+            trans->Translate(m_fboItem->m_position.x(),m_fboItem->m_position.y(),m_fboItem->m_position.z());
+            trans->Scale(m_fboItem->m_scale3D,m_fboItem->m_scale3D,m_fboItem->m_scale3D);
+            trans->RotateWXYZ(m_fboItem->m_pose.scalar()
+                              ,m_fboItem->m_pose.x()
+                              ,m_fboItem->m_pose.y()
+                              ,m_fboItem->m_pose.z());
+
+            m_renderer->GetActiveCamera()->ApplyTransform(trans);
+
+
         while (!m_fboItem->events.empty()) {
             auto e = m_fboItem->events.takeFirst();
             e->accept();
@@ -250,13 +251,32 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
                 if(mouse->type() ==QEvent::MouseButtonDblClick){
                     qDebug() <<mouse->type()<< mouse << (mouse->flags()==Qt::MouseEventCreatedDoubleClick);
                 } else if(mouse->type() ==QEvent::MouseButtonPress){
+
+                    qDebug() << "("<<m_renderer->GetActiveCamera()->GetPosition()[0]
+                                << m_renderer->GetActiveCamera()->GetPosition()[1]
+                             << m_renderer->GetActiveCamera()->GetPosition()[2]<<") "
+                             << m_renderer->GetActiveCamera()->GetViewUp()[0]
+                             << m_renderer->GetActiveCamera()->GetViewUp()[1]
+                             << m_renderer->GetActiveCamera()->GetViewUp()[2];
+
                     qDebug() << "Picking pixel: " << mouse << m_Interactor->GetEventPosition()[0] << " "<< m_Interactor->GetEventPosition()[1];
                     m_Interactor->GetPicker()->Pick(mouse->x(),mouse->y(),0,  // always zero.
                                                     m_Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
                     double picked[3];
                     m_Interactor->GetPicker()->GetPickPosition(picked);
-                    emit m_fboItem->pickedPoint3d({float(picked[0]),float(picked[1]),float(picked[2])});
+                    QString ans = QString("picked point: (%1,%2,%3)").arg(picked[0],3).arg(picked[1],3).arg(picked[2],3);
+
 //                    std::cout << "Picked value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
+
+                    picker->Pick(mouse->x(),mouse->y(),0
+                                 , m_Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+                    auto prop = picker->GetProp3D();
+                    if(prop){
+                        qDebug() << prop->GetClassName()<<prop << manager->getModel(prop);
+                        ans.append("\t");
+                        ans.append(QString("picked object (%1)").arg(manager->getModel(prop)));
+                    }
+                    emit m_fboItem->message(ans);
                 }
             }
 

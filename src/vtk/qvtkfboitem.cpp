@@ -1,9 +1,9 @@
 #include "qvtkfboitem.hpp"
 #include "qvtkfborenderer.hpp"
 
-QVTKFBOItem::QVTKFBOItem()
+QVTKFBOItem::QVTKFBOItem():m_position(QVector3D(0,0,0)),m_scale3D(1)
 {
-//    startTimer(100);
+    startTimer(1000);
     installEventFilter(this);
 //    setMirrorVertically(true);
     setAcceptedMouseButtons(Qt::AllButtons);

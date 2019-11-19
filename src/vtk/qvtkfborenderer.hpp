@@ -38,10 +38,8 @@ public slots:
     void initScene();
     void selectedModel(QString modelFileName);
     void setCamera(QVTKFBOItem::Orientation orit);
-    void updateCamera(double x, double y, double z);
 
 private:
-    QList<std::shared_ptr<QEvent>> events;
     QVTKFBOItem *m_fboItem;
 
     vtkSmartPointer<vtkExternalOpenGLRenderWindow> renderWindow;
@@ -57,6 +55,10 @@ private:
     QVector3D delta;
     int counter;
     int total_counter;
+
+
+    vtkSmartPointer<vtkPropPicker> picker;
+
 };
 
 #endif // QVTKFBORENDERER_HPP

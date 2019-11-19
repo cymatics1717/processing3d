@@ -166,8 +166,8 @@ int Model::loadCloud()
 //    mapper->SetScalarModeToUsePointData();
 //    mapper->ScalarVisibilityOff ();
 
-//    vtkSmartPointer<vtkLODActor> actor = vtkSmartPointer<vtkLODActor>::New ();
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New ();
+    vtkSmartPointer<vtkLODActor> actor = vtkSmartPointer<vtkLODActor>::New ();
+//    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New ();
 //    actor->GetProperty()->SetColor(0,1,0);
     actor->SetMapper (mapper);
     actor->GetProperty()->SetPointSize(2.5);
@@ -188,7 +188,7 @@ int Model::loadPrimitive()
         axes->SetXAxisLabelText("XX");
         axes->SetYAxisLabelText("YY");
         axes->SetZAxisLabelText("ZZ");
-        double axes_length = 20.0;
+        double axes_length = 10;
         int16_t axes_label_font_size = 10;
         axes->SetTotalLength(axes_length, axes_length, axes_length);
         axes->GetXAxisCaptionActor2D()->GetTextActor()->SetTextScaleModeToNone();
@@ -218,8 +218,8 @@ int Model::loadPano()
         if(source == nullptr){
             source = vtkSmartPointer<vtkTexturedSphereSource>::New();
             source->SetRadius(1000);
-            source->SetPhiResolution(20);
-            source->SetThetaResolution(20);
+            source->SetPhiResolution(200);
+            source->SetThetaResolution(200);
         }
 
         auto texture = vtkSmartPointer<vtkTexture>::New();
@@ -246,7 +246,7 @@ int Model::loadPano()
         actor->SetMapper(mapper);
         actor->SetTexture(texture);
         manager->getRenderer()->AddViewProp(actor);
-        //    prop = actor;
+        prop = actor;
         manager->insertModel(prop.Get(), this);
     }
 }

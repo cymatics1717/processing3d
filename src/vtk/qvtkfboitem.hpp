@@ -18,12 +18,18 @@ public:
 
     Q_PROPERTY(Orientation camera_Orientation MEMBER m_camera_Orientation NOTIFY cameraOrientationChanged)
     Q_PROPERTY(QQuaternion pose MEMBER m_pose NOTIFY poseChanged)
+    Q_PROPERTY(QVector3D position MEMBER m_position NOTIFY positionChanged)
+    Q_PROPERTY(qreal scale3D MEMBER m_scale3D NOTIFY scale3DChanged)
+    Q_PROPERTY(qreal progress MEMBER m_progress NOTIFY progressChanged)
 
     QVTKFBOItem();
     QQuickFramebufferObject::Renderer *createRenderer() const override;
 
     QList<std::shared_ptr<QEvent>> events;
     QQuaternion m_pose;
+    QVector3D m_position;
+    qreal m_progress;
+    qreal m_scale3D;
 
 public slots:
 signals:
@@ -38,6 +44,9 @@ signals:
     void clicked();
     void cameraOrientationChanged(Orientation oritation);
     void poseChanged(QQuaternion pose);
+    void positionChanged(QVector3D position);
+    void scale3DChanged(qreal scale3d);
+    void progressChanged(qreal pose);
     void pickedPoint3d(QVector3D picked);
 
 protected:

@@ -23,7 +23,6 @@ SPage {
         id: scene
         anchors.fill: parent
         focus: true
-
         onToggleWindow:{
             if(root.visibility === Window.FullScreen){
                 root.showNormal()
@@ -46,12 +45,8 @@ SPage {
         onMessage: {
             corner.text = msg
         }
-        onPickedPoint3d: {
-            console.log(picked)
-            corner.text ="picked point: ("+ picked.x.toFixed(3) +","+ picked.y.toFixed(3)+"," + picked.z.toFixed(3)+")"
-        }
         Component.onCompleted: {
-            scene.camera_Orientation = VTKScene.LeftView
+            scene.camera_Orientation = VTKScene.FrontView
         }
 
     }
@@ -105,7 +100,7 @@ SPage {
 
     NumberAnimation  {
         property quaternion start: eulerToQuaternionXYZ(0, 0,0)
-        property quaternion end: Qt.quaternion(1,90,90,90)/*eulerToQuaternionXYZ(90, 90, 90)*/
+        property quaternion end: /*Qt.quaternion(1,90,90,90)*/eulerToQuaternionXYZ(0, 0, 90)
         property real progress: 0
         id: animator
         target: animator
@@ -114,11 +109,17 @@ SPage {
         to: 1.0
         duration: 1000
 //        running: true
+        loops: 1
 //        loops:Animation.Infinite
 //        easing.type: Easing.InOutElastic;
         onProgressChanged: {
 //            scene.pose = slerp(start, end, progress)
+            scene.progress = progress
             scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
+//            scene.scale3D = 1.01
+            scene.position = Qt.vector3d(progress*.1,0,0)
+//            console.log("progress = "+ scene.position)
+
 //            scene.pose = Qt.quaternion.slerp(
 //                        Qt.quaternion(0,Qt.vector3d(0,0,1)),
 //                        Qt.quaternion(1,Qt.vector3d(0,0,1)),progress)

@@ -72,7 +72,6 @@ SPage {
                 onClicked:{
                     console.log(title + " clicked.")
                     scene1.camera_Orientation = oritation
-                    corner.text = title
                 }
             }
         }
