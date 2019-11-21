@@ -71,9 +71,11 @@ file(GLOB SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/eventbus.cpp
     ${PROJECT_SOURCE_DIR}/src/vtk/cellpickinteractorstyle.cpp
-    ${PROJECT_SOURCE_DIR}/src/vtk/modelmanager.cpp
+#    ${PROJECT_SOURCE_DIR}/src/vtk/modelmanager.cpp
     ${PROJECT_SOURCE_DIR}/src/vtk/qvtkfboitem.cpp
-    ${PROJECT_SOURCE_DIR}/src/vtk/model.cpp
+    ${PROJECT_SOURCE_DIR}/src/vtk/qvtkobject3d.cpp
+#    ${PROJECT_SOURCE_DIR}/src/vtk/qvtkobjectmanager.cpp
+#    ${PROJECT_SOURCE_DIR}/src/vtk/model.cpp
     ${PROJECT_SOURCE_DIR}/src/vtk/proppickinteractorstyle.cpp
     ${PROJECT_SOURCE_DIR}/src/vtk/qvtkfborenderer.cpp
     ${PROJECT_SOURCE_DIR}/src/opengl/openglobject.cpp

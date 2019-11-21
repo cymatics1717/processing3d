@@ -1,11 +1,11 @@
 #include "qvtkfboitem.hpp"
 #include "qvtkfborenderer.hpp"
 
-QVTKFBOItem::QVTKFBOItem():m_position(QVector3D(0,0,0)),m_scale3D(1)
+QVTKFBOItem::QVTKFBOItem():m_pose(QQuaternion()),m_position(QVector3D(0,0,0)),m_scale3D(1),m_running(false)
 {
-    startTimer(1000);
+//    startTimer(1000);
     installEventFilter(this);
-//    setMirrorVertically(true);
+//    setMirrorVertically(false);
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptTouchEvents(true);
 //    setAcceptHoverEvents(true);
@@ -62,7 +62,7 @@ bool QVTKFBOItem::eventFilter(QObject *o, QEvent *e)
         emit hoverEvent(eee->type(),eee->oldPos(),eee->pos());
 //        handleEvent(std::make_shared<QHoverEvent>(static_cast<const QHoverEvent&>(*e)));
     } else if(t==QEvent::FocusIn||t==QEvent::FocusOut){
-        handleEvent(std::make_shared<QFocusEvent>(static_cast<const QFocusEvent&>(*e)));
+//        handleEvent(std::make_shared<QFocusEvent>(static_cast<const QFocusEvent&>(*e)));
     } else if(t==QEvent::Timer){
         handleEvent(std::make_shared<QTimerEvent>(static_cast<const QTimerEvent&>(*e)));
     } else if(t == QEvent::TouchBegin ||t == QEvent::TouchUpdate || t == QEvent::TouchEnd){

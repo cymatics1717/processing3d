@@ -66,11 +66,11 @@ ApplicationWindow {
         focus: true
         contentHeight: toolButton.implicitHeight
         background:Rectangle{
-            color: ccolor
-//            gradient: stackView.currentItem.grad
-            Behavior on color {
-                ColorAnimation { duration: ticker.interval }
-            }
+//            color: ccolor
+            gradient: stackView.currentItem.grad
+//            Behavior on color {
+//                ColorAnimation { duration: ticker.interval }
+//            }
         }
 
         ToolButton {

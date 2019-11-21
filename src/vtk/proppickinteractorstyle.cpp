@@ -84,14 +84,14 @@ void propPickInteractorStyle::OnLeftButtonDown()
             LastPickedActor->GetProperty()->SetSpecular(0.0);
 
             if(parent){
-                QString filename = parent->manager->getModel(picker->GetProp3D());
+                QString filename = parent->getObject(picker->GetProp3D())->name();
                 parent->selectedModel(filename);
             }
 
         } else if(picker->GetProp3D()){
 
             if(parent){
-                QString filename = parent->manager->getModel(picker->GetProp3D());
+                QString filename = parent->getObject(picker->GetProp3D())->name();
                 qDebug() << picker->GetProp3D()->GetClassName()<<picker->GetProp3D()  << filename;
                 parent->selectedModel(filename);
             }

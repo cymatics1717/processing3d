@@ -54,7 +54,7 @@ SPage {
     ScrollView {
         id:rect
         clip: true
-        visible: false
+        visible: true
         anchors{
             bottom: scene.bottom
             horizontalCenter: scene.horizontalCenter
@@ -115,20 +115,28 @@ SPage {
         onProgressChanged: {
 //            scene.pose = slerp(start, end, progress)
             scene.progress = progress
-            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
+//            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
 //            scene.scale3D = 1.01
-            scene.position = Qt.vector3d(progress*.1,0,0)
+//            scene.position = Qt.vector3d(progress,0,0)
 //            console.log("progress = "+ scene.position)
 
-//            scene.pose = Qt.quaternion.slerp(
-//                        Qt.quaternion(0,Qt.vector3d(0,0,1)),
-//                        Qt.quaternion(1,Qt.vector3d(0,0,1)),progress)
+            scene.pose = slerp(start,end,progress)
+        }
+        onStarted: {
+            scene.running = true
+            scene.scale3D = 1
+//            scene.position = Qt.vector3d(0,0,0)
+        }
+        onFinished: {
+            scene.running = false
+            scene.scale3D = 1
+//            scene.position = Qt.vector3d(0,0,0)
         }
     }
 
     function angleAxisToQuat(angle, axis) {
         var k = .5;
-        var m = 5;
+        var m = 1;
         var a = angle * Math.PI / 180.0;
         var s = m*Math.sin(a * k);
         var c = m*Math.cos(a * k);

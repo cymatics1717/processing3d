@@ -81,6 +81,7 @@ QString Model::source() const
     return filename;
 }
 
+
 void Model::load()
 {
 //    loadPointSource();
@@ -225,19 +226,23 @@ int Model::loadPano()
         auto texture = vtkSmartPointer<vtkTexture>::New();
         texture->SetInputConnection(imageReader->GetOutputPort());
 
-        //    auto texturemap = vtkSmartPointer<vtkTextureMapToSphere>::New();
-        //    texturemap->SetInputConnection(source->GetOutputPort());
-        //    texturemap->SetCenter(0.5, 0.5, 0.5);
-        //    texturemap->SetPreventSeam(true);
-        //    texturemap->SetAutomaticSphereGeneration(true);
+        auto translation = vtkSmartPointer<vtkTransform>::New();
+        translation->Translate(1.0, 2.0, 3.0);
+
+        transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+        transformFilter->SetInputConnection(source->GetOutputPort());
+        transformFilter->SetTransform(translation);
+        transformFilter->Update();
+
 
         //    double translate[3] = {0, 0, 0};
         auto transformTexture = vtkSmartPointer<vtkTransformTextureCoords>::New();
-        transformTexture->SetInputConnection(source->GetOutputPort());
+        transformTexture->SetInputConnection(transformFilter->GetOutputPort());
         //    transformTexture->SetPosition(translate);
         transformTexture->SetFlipR(false);
         transformTexture->SetFlipS(false);
         transformTexture->SetFlipT(true);
+
 
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         mapper->SetInputConnection(transformTexture->GetOutputPort());
@@ -246,9 +251,15 @@ int Model::loadPano()
         actor->SetMapper(mapper);
         actor->SetTexture(texture);
         manager->getRenderer()->AddViewProp(actor);
-        prop = actor;
-        manager->insertModel(prop.Get(), this);
+
+        manager->insertModel(actor.Get(), this);
     }
+}
+
+void Model::applyTransform(vtkSmartPointer<vtkTransform> transform)
+{
+    transformFilter->SetTransform(transform);
+    transformFilter->Update();
 }
 
 int Model::loadImage()

@@ -20,6 +20,7 @@ public:
     Q_PROPERTY(QQuaternion pose MEMBER m_pose NOTIFY poseChanged)
     Q_PROPERTY(QVector3D position MEMBER m_position NOTIFY positionChanged)
     Q_PROPERTY(qreal scale3D MEMBER m_scale3D NOTIFY scale3DChanged)
+    Q_PROPERTY(bool running MEMBER m_running NOTIFY runningChanged)
     Q_PROPERTY(qreal progress MEMBER m_progress NOTIFY progressChanged)
 
     QVTKFBOItem();
@@ -30,6 +31,7 @@ public:
     QVector3D m_position;
     qreal m_progress;
     qreal m_scale3D;
+    bool m_running;
 
 public slots:
 signals:
@@ -47,6 +49,7 @@ signals:
     void positionChanged(QVector3D position);
     void scale3DChanged(qreal scale3d);
     void progressChanged(qreal pose);
+    void runningChanged(bool running);
     void pickedPoint3d(QVector3D picked);
 
 protected:

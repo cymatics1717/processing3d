@@ -5,6 +5,7 @@
 #include <vtkActor.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkTransformPolyDataFilter.h>
 
 class modelManager;
 class Model : public QObject
@@ -21,6 +22,7 @@ signals:
 public slots:
     void load();
     int loadPano();
+    void applyTransform(vtkSmartPointer<vtkTransform> transform);
 
 private:
     int loadPrimitive();
@@ -32,7 +34,7 @@ private:
     QString filename;
     vtkSmartPointer<vtkProp3D> prop;
     modelManager *manager;
-
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter;
 };
 
 #endif // MODEL_HPP

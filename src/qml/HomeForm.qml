@@ -8,7 +8,7 @@ SPage {
 
     Row{
         id:container
-        y: page.height*.2
+//        y: page.height*.2
 //        anchors.top: info.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: page.width/20
@@ -17,7 +17,7 @@ SPage {
             model:root.pagemodel
             TButton {
                 text: qsTr(title)
-                width: page.width/10
+                width: page.width/20
                 radius: width/20
                 height: width
                 onClicked:{
