@@ -33,8 +33,8 @@ public:
     qreal m_scale3D;
     bool m_running;
 
-public slots:
 signals:
+    void sceneCompleted();
     void openFile(QString filename);
     void selectedModel(QString modelFileName);
     void hoverEvent(int type,QPoint oldPos, QPoint newPos);
@@ -56,7 +56,7 @@ protected:
     bool eventFilter(QObject *object, QEvent *evt) override;
 
 public slots:
-    void handleEvent(std::shared_ptr<QEvent> event);
+    void handleEvent(std::shared_ptr<QEvent> event);   
 
 private:
     QVTKFBORenderer *renderer;

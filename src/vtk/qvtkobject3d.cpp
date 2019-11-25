@@ -33,7 +33,7 @@
 #include <pcl/common/angles.h>
 
 QVTKObject3D::QVTKObject3D(QString name, QObject *parent) :
-    QObject(parent),m_name(name),oorigin({0,0,0})
+    QObject(parent),m_name(name),type(-1),center({0,0,0}),boundingBox(QVector<double>(6,0))
 {
     qDebug() << name;
 }
@@ -81,12 +81,6 @@ int QVTKObject3D::loadMesh()
     }
     if(inputData){
         auto translation = vtkSmartPointer<vtkTransform>::New();
-        auto c = inputData->GetCenter();
-        qDebug() << c[0]<< c[1]<< c[2];
-        oorigin.setX(c[0]);
-        oorigin.setY(c[1]);
-        oorigin.setZ(c[2]);
-
         double n=1;
         translation->Scale(n,n,n);
 
@@ -102,15 +96,18 @@ int QVTKObject3D::loadMesh()
         // Model Actor
         auto actor = vtkSmartPointer<vtkLODActor>::New();
         actor->SetMapper(m_modelMapper);
-        actor->GetProperty()->SetInterpolationToFlat();
+//        actor->GetProperty()->SetInterpolationToFlat();
 
+        actor->GetProperty()->SetColor(1,1,1);
         actor->GetProperty()->SetAmbient(0.1);
         actor->GetProperty()->SetDiffuse(0.7);
         actor->GetProperty()->SetSpecular(0.3);
         actor->GetProperty()->SetOpacity(0.6);
-        actor->SetPosition(0.0, 0.0, 0.0);
+//        actor->SetPosition(0.0, 0.0, 0.0);
         actor->SetPickable(true);
         prop = actor;
+        initObjectOriginalData(inputData);
+        type = 1;
         return 0;
     }
     return 1;
@@ -134,9 +131,8 @@ int QVTKObject3D::loadData()
         axes->GetYAxisCaptionActor2D()->GetCaptionTextProperty()->SetFontSize(axes_label_font_size);
         axes->GetZAxisCaptionActor2D()->GetCaptionTextProperty()->SetFontSize(axes_label_font_size);
         axes->SetPickable(true);
-
         prop = axes;
-
+        type = 2;
         return 0;
     }
     return 2;
@@ -181,13 +177,16 @@ int QVTKObject3D::loadCloud()
     polydata->ShallowCopy(vertexFilter->GetOutput());
     polydata->GetPointData()->SetScalars(colors);
 
-    auto b = polydata->GetBounds();
-    auto c = polydata->GetCenter();
-    qDebug() << b[0]<< b[1]<< b[2]<< b[3]<< b[4]<< b[5];
-    qDebug() << c[0]<< c[1]<< c[2];
-    oorigin.setX(c[0]);
-    oorigin.setY(c[1]);
-    oorigin.setZ(c[2]);
+//    auto b = polydata->GetBounds();
+//    auto c = polydata->GetCenter();
+//    qDebug() << b[0]<< b[1]<< b[2]<< b[3]<< b[4]<< b[5];
+//    qDebug() << c[0]<< c[1]<< c[2];
+//    center.setX(c[0]);
+//    center.setY(c[1]);
+//    center.setZ(c[2]);
+//    for(int i=0;i<6;++i){
+//        boundingBox[i]= b[i];
+//    }
 
     auto translation = vtkSmartPointer<vtkTransform>::New();
     translation->Translate(0,0,0);
@@ -209,6 +208,9 @@ int QVTKObject3D::loadCloud()
     actor->SetMapper (mapper);
     actor->GetProperty()->SetPointSize(2.5);
     prop = actor;
+    type = 3;
+    initObjectOriginalData(polydata);
+
     return 0;
 }
 
@@ -224,6 +226,16 @@ int QVTKObject3D::loadImage()
         source->SetRadius(1000);
         source->SetPhiResolution(20);
         source->SetThetaResolution(20);
+
+//        auto b = source->GetOutput()->GetBounds();
+//        auto c = source->GetOutput()->GetCenter();
+//        qDebug() << c[0]<< c[1]<< c[2];
+//        center.setX(c[0]);
+//        center.setY(c[1]);
+//        center.setZ(c[2]);
+//        for(int i=0;i<6;++i){
+//            boundingBox[i]=b[i];
+//        }
 
         auto texture = vtkSmartPointer<vtkTexture>::New();
         texture->SetInputConnection(imageReader->GetOutputPort());
@@ -252,6 +264,9 @@ int QVTKObject3D::loadImage()
         actor->SetMapper(mapper);
         actor->SetTexture(texture);
         prop = actor;
+        initObjectOriginalData(source->GetOutput());
+        type = 4;
+
         return 0;
     }
     return 3;
@@ -259,7 +274,26 @@ int QVTKObject3D::loadImage()
 
 void QVTKObject3D::alignToOrigin()
 {
-    prop->SetPosition(-oorigin.x(),-oorigin.y(),-oorigin.z());
+    prop->SetPosition(-center.x(),-center.y(),-center.z());
+}
+
+void QVTKObject3D::initObjectOriginalData(vtkSmartPointer<vtkPolyData> inputData)
+{
+    {
+        auto c = inputData->GetCenter();
+        center = QVector3D(c[0],c[1],c[2]);
+    }
+    for(int i=0;i<6;++i){
+        boundingBox[i]=inputData->GetBounds()[i];
+    }
+    {
+        auto c = prop->GetPosition();
+        position = QVector3D(c[0],c[1],c[2]);
+    }
+    {
+        auto c = prop->GetOrientation();
+        oritation = QVector3D(c[0],c[1],c[2]);
+    }
 }
 
 void QVTKObject3D::setColor(QColor color)

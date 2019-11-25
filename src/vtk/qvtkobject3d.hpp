@@ -25,6 +25,7 @@ public slots:
     int loadImage();
 
     void alignToOrigin();
+    void initObjectOriginalData(vtkSmartPointer<vtkPolyData> inputData);
     void setColor(QColor color);
     void applyTransform(vtkSmartPointer<vtkTransform> t);
     vtkSmartPointer<vtkProp3D> getProp3d() const;
@@ -34,7 +35,12 @@ private:
 
     vtkSmartPointer<vtkProp3D> prop;
 
-    QVector3D oorigin;
+public:
+    int type;
+    QVector3D center;
+    QVector<double> boundingBox;
+    QVector3D position;
+    QVector3D oritation;
 };
 
 #endif // QVTKOBJECT3D_HPP

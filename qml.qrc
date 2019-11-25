@@ -17,5 +17,6 @@
         <file>res/ccViewZneg.png</file>
         <file>res/ccViewZpos.png</file>
         <file>src/qml/Page1Form.qml</file>
+        <file>src/qml/Page2Form.qml</file>
     </qresource>
 </RCC>

@@ -20,7 +20,7 @@ SPage {
     }
 
     VTKScene {
-        id: scene
+        id: scene1
         anchors.fill: parent
         focus: true
         onToggleWindow:{
@@ -45,10 +45,13 @@ SPage {
         onMessage: {
             corner.text = msg
         }
-        Component.onCompleted: {
-            scene.camera_Orientation = VTKScene.FrontView
+        onSceneCompleted:{
+            console.log("++++++++++++++++++++===")
+            scene1.camera_Orientation = VTKScene.FrontView
+            scene1.openFile("/home/wayne/3d/red_pepper.stl");
+            scene1.openFile("/home/wayne/3d/00001-pano.jpg");
+            scene1.openFile("/home/wayne/3d/obj/a.stl");
         }
-
     }
 
     ScrollView {
@@ -56,8 +59,8 @@ SPage {
         clip: true
         visible: true
         anchors{
-            bottom: scene.bottom
-            horizontalCenter: scene.horizontalCenter
+            bottom: scene1.bottom
+            horizontalCenter: scene1.horizontalCenter
         }
         width: parent.width
         height: parent.height/10
@@ -78,7 +81,7 @@ SPage {
                 src: img
                 onClicked:{
                     console.log(title + " clicked.")
-                    scene.camera_Orientation = oritation
+                    scene1.camera_Orientation = oritation
                     corner.text = title
                 }
             }
@@ -90,7 +93,7 @@ SPage {
         target: fileDialog
         onAccepted: {
             console.info(fileDialog.fileUrl)
-            scene.openFile(fileDialog.fileUrl)
+            scene1.openFile(fileDialog.fileUrl)
             rect.visible = true
         }
         onRejected: {
@@ -113,24 +116,24 @@ SPage {
 //        loops:Animation.Infinite
         easing.type: Easing.OutInElastic;
         onProgressChanged: {
-//            scene.pose = slerp(start, end, progress)
-            scene.progress = progress
-//            scene.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
-            scene.scale3D = 1.1
-            scene.position = Qt.vector3d(progress*10,0,0)
-//            console.log("progress = "+ scene.position)
+//            scene1.pose = slerp(start, end, progress)
+            scene1.progress = progress
+//            scene1.pose = angleAxisToQuat(animator.progress*180, Qt.vector3d(0,0,1))
+            scene1.scale3D = 1.1
+//            scene1.position = Qt.vector3d(progress*10,0,0)
+//            console.log("progress = "+ scene1.position)
 
-            scene.pose = slerp(start,end,progress)
+            scene1.pose = slerp(start,end,progress)
         }
         onStarted: {
-            scene.running = true
-            scene.scale3D = 1
-//            scene.position = Qt.vector3d(0,0,0)
+            scene1.running = true
+            scene1.scale3D = 1
+//            scene1.position = Qt.vector3d(0,0,0)
         }
         onFinished: {
-            scene.running = false
-            scene.scale3D = 1
-//            scene.position = Qt.vector3d(0,0,0)
+            scene1.running = false
+            scene1.scale3D = 1
+//            scene1.position = Qt.vector3d(0,0,0)
         }
     }
 

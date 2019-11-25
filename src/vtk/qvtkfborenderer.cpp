@@ -22,6 +22,7 @@
 #include <vtkQuaternion.h>
 #include <QTimeLine>
 #include <QThread>
+#include <QFileInfo>
 
 class vtkHoverCallback : public vtkCommand {
 public:
@@ -123,7 +124,7 @@ void QVTKFBORenderer::resetCamera() {
     QOpenGLFunctions::initializeOpenGLFunctions();
     QOpenGLFunctions::glUseProgram(0);
 
-    m_renderer->ResetCameraClippingRange();
+//    m_renderer->ResetCameraClippingRange();
 //    m_renderer->GetActiveCamera()->SetViewAngle(30);
 //    m_renderer->GetActiveCamera()->SetPosition(0, 0, 1);
 //    m_renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
@@ -145,9 +146,10 @@ void QVTKFBORenderer::initScene() {
     connect(m_fboItem, &QVTKFBOItem::cameraOrientationChanged, this, &QVTKFBORenderer::setCamera);
 
     addObject("axes");
-    addObject("/home/wayne/3d/red_pepper.stl");
-    addObject("/home/wayne/3d/00001-pano.jpg");
-
+//    addObject("/home/wayne/3d/red_pepper.stl");
+//    addObject("/home/wayne/3d/00001-pano.jpg");
+//    addObject("/home/wayne/3d/obj/a.stl");
+//    addObject("/home/wayne/3d/obj/knot.stl");
 }
 
 void QVTKFBORenderer::selectedModel(QString modelFileName) {
@@ -240,7 +242,7 @@ void QVTKFBORenderer::onObjectAdded(int status, QString name)
     qDebug() << status << name << pool.keys();
     QVTKObject3D *tmp = static_cast<QVTKObject3D*>(sender());
     if(tmp){
-        qDebug() << tmp->name();
+//        qDebug() << tmp->name();
         pool.insert(tmp->getProp3d(),tmp);
         m_renderer->AddActor(tmp->getProp3d());
         m_renderer->Modified();
@@ -292,7 +294,7 @@ void QVTKFBORenderer::handleKey(std::shared_ptr<QEvent> keyevent)
 void QVTKFBORenderer::handleMouse(std::shared_ptr<QEvent> mouseevent, vtkSmartPointer<vtkTransform> trans)
 {
     QMouseEvent *mouse = static_cast<QMouseEvent *>(mouseevent.get());
-    qDebug() << "point: " << mouse << m_Interactor->GetEventPosition()[0] << " "<< m_Interactor->GetEventPosition()[1];
+//    qDebug() << "point: " << mouse << m_Interactor->GetEventPosition()[0] << " "<< m_Interactor->GetEventPosition()[1];
     m_Interactor->GetPicker()->Pick(mouse->x(),mouse->y(),0,renderWindow->GetRenderers()->GetFirstRenderer());
     double picked[3];
     picker->GetPickPosition(picked);
@@ -304,22 +306,45 @@ void QVTKFBORenderer::handleMouse(std::shared_ptr<QEvent> mouseevent, vtkSmartPo
     auto prop = picker->GetProp3D();
     if(prop){
         selected_Prop = prop;
+        auto pos = m_renderer->GetActiveCamera()->GetPosition();
         qDebug() << prop->GetClassName()<<prop << getObject(prop)->name();
+        qDebug() << ans<<QString("camera position: (%1,%2,%3)").arg(pos[0],3).arg(pos[1],3).arg(pos[2],3);
         ans.append("\t");
         ans.append(QString("picked object (%1)").arg(getObject(prop)->name()));
         if(mouse->type() ==QEvent::MouseButtonDblClick){
-            getObject(selected_Prop)->alignToOrigin();
-            getObject(selected_Prop)->setColor(QColor("#001166"));
+            auto o = getObject(selected_Prop);
+            o->alignToOrigin();
+
+            static bool flag = true;
+            flag = !flag;
+            vtkActor *tmp = dynamic_cast<vtkActor*>(selected_Prop);
+            if(tmp){
+                if(flag){
+                    tmp->GetProperty()->SetColor(1,1,1);
+                } else {
+                    tmp->GetProperty()->SetColor(.5,0,0);
+                }
+                tmp->GetProperty()->SetAmbient(0.1);
+                tmp->GetProperty()->SetDiffuse(0.7);
+                tmp->GetProperty()->SetSpecular(0.3);
+                tmp->GetProperty()->SetOpacity(0.9);
+                if(o->type==4){
+                    auto s = tmp->GetScale();
+                    tmp->SetScale(*s*.5);
+                }
+            }
+//            update();
         }
     }
     emit m_fboItem->message(ans);
 }
 
 void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
-    qDebug() <<++cnt<<QString(30,'-');
+//    qDebug() <<++cnt<<QString(30,'-');
     if (!m_fboItem) {
         m_fboItem = static_cast<QVTKFBOItem *>(item);
         initScene();
+        m_fboItem->sceneCompleted();
     }
     if(renderWindow && renderWindow->GetReadyForRendering()) {
 
@@ -328,8 +353,8 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
 
         auto trans = vtkSmartPointer<vtkTransform>::New();
         trans->Identity();
-//        trans->Translate(m_fboItem->m_position.x(),m_fboItem->m_position.y(),m_fboItem->m_position.z());
-//        trans->Scale(m_fboItem->m_scale3D,m_fboItem->m_scale3D,m_fboItem->m_scale3D);
+        trans->Translate(m_fboItem->m_position.x(),m_fboItem->m_position.y(),m_fboItem->m_position.z());
+        trans->Scale(m_fboItem->m_scale3D,m_fboItem->m_scale3D,m_fboItem->m_scale3D);
 //        trans->RotateX(90*m_fboItem->m_progress);
 
         trans->RotateWXYZ(m_fboItem->m_pose.scalar()
@@ -338,24 +363,25 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
                           ,m_fboItem->m_pose.z());
 
         if(m_fboItem->m_running){
-            m_renderer->GetActiveCamera()->ApplyTransform(trans);
+//            m_renderer->GetActiveCamera()->ApplyTransform(trans);
+
+            if(selected_Prop){
+                qDebug() << "m_fboItem->m_pose = " << m_fboItem->m_pose<<m_fboItem->m_position;
+                selected_Prop->AddOrientation(trans->GetOrientation());
+                selected_Prop->AddPosition(trans->GetPosition());
+                selected_Prop->SetScale(trans->GetScale());
+            }
         }
 
         while (!m_fboItem->events.empty()) {
             auto e = m_fboItem->events.takeFirst();
             e->accept();
-            qDebug() <<e.get();
+//            qDebug() <<e.get();
             auto t = e->type();
             if (t == QEvent::MouseButtonPress/*||t==QEvent::MouseButtonRelease*/
                     ||t==QEvent::MouseButtonDblClick/*||t==QEvent::MouseMove*/) {
                 handleMouse(e,trans);
-//                if(selected_Prop){
-                    qDebug() << "m_fboItem->m_pose = " << m_fboItem->m_pose;
 
-//                    selected_Prop->SetOrientation(trans->GetOrientation());
-//                    selected_Prop->SetPosition(trans->GetPosition());
-//                    selected_Prop->SetScale(trans->GetScale());
-//                }
             } else if(t==QEvent::KeyPress){
                 handleKey(e);
             }
@@ -365,7 +391,7 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
 }
 
 void QVTKFBORenderer::render() {
-    qDebug() <<cnt<<QString(30,'-');
+//    qDebug() <<cnt<<QString(30,'-');
 
     renderWindow->PushState();
     renderWindow->Start();
