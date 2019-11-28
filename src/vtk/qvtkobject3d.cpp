@@ -178,7 +178,7 @@ int QVTKObject3D::loadCloud()
     polydata->GetPointData()->SetScalars(colors);
 
 //    auto b = polydata->GetBounds();
-//    auto c = polydata->GetCenter();
+    auto c = polydata->GetCenter();
 //    qDebug() << b[0]<< b[1]<< b[2]<< b[3]<< b[4]<< b[5];
 //    qDebug() << c[0]<< c[1]<< c[2];
 //    center.setX(c[0]);
@@ -191,6 +191,7 @@ int QVTKObject3D::loadCloud()
     auto translation = vtkSmartPointer<vtkTransform>::New();
     translation->Translate(0,0,0);
 //    translation->Translate(-c[0],-c[1],-c[2]);
+//    translation->RotateX(180);
 
     auto transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
     transformFilter->SetInputData(polydata);
@@ -198,6 +199,7 @@ int QVTKObject3D::loadCloud()
     transformFilter->Update();
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(transformFilter->GetOutputPort());
+//    mapper->SetInputData(polydata);
 //    mapper->SetColorModeToMapScalars();
 //    mapper->SetScalarModeToUsePointData();
 //    mapper->ScalarVisibilityOff ();
@@ -223,7 +225,7 @@ int QVTKObject3D::loadImage()
     if (imageReader) {
         imageReader->SetFileName(stdstr.c_str());
         auto source = vtkSmartPointer<vtkTexturedSphereSource>::New();
-        source->SetRadius(1000);
+        source->SetRadius(10);
         source->SetPhiResolution(20);
         source->SetThetaResolution(20);
 
@@ -294,6 +296,7 @@ void QVTKObject3D::initObjectOriginalData(vtkSmartPointer<vtkPolyData> inputData
         auto c = prop->GetOrientation();
         oritation = QVector3D(c[0],c[1],c[2]);
     }
+    alignToOrigin();
 }
 
 void QVTKObject3D::setColor(QColor color)

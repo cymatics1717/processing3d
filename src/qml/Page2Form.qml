@@ -48,9 +48,9 @@ SPage {
         onSceneCompleted:{
             console.log("++++++++++++++++++++===")
             scene1.camera_Orientation = VTKScene.FrontView
-            scene1.openFile("/home/wayne/3d/red_pepper.stl");
+//            scene1.openFile("/home/wayne/3d/red_pepper.stl");
             scene1.openFile("/home/wayne/3d/00001-pano.jpg");
-            scene1.openFile("/home/wayne/3d/obj/a.stl");
+            scene1.openFile("/home/wayne/3d/Cloud2.ply");
         }
     }
 

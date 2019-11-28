@@ -49,13 +49,13 @@ void vtkHoverCallback::Execute(vtkObject *, unsigned long event, void *vtkNotUse
 
 QVTKFBORenderer::QVTKFBORenderer(QObject *parent) : QObject(parent)/*, manager(new modelManager(this))*/,
                                                     m_fboItem(nullptr), m_dapter(new QVTKInteractorAdapter(this)),
-                                                    m_renderer(vtkSmartPointer<vtkRenderer>::New()),mfactor(500),
-                                                    picker(vtkSmartPointer<vtkPropPicker>::New()),cnt(0)
+                                                    m_renderer(vtkSmartPointer<vtkRenderer>::New()),selected_Prop(nullptr),
+                                                    mfactor(500),picker(vtkSmartPointer<vtkPropPicker>::New()),cnt(0)
 {
 
     qDebug() << vtkVersion::GetVTKSourceVersion();
     // Renderer
-    m_Interactor = vtkSmartPointer<QVTKInteractor>::New();
+    auto m_Interactor = vtkSmartPointer<QVTKInteractor>::New();
     m_Interactor->Initialize();
     m_Interactor->EnableRenderOn();
     renderWindow = vtkSmartPointer<vtkExternalOpenGLRenderWindow>::New();
@@ -295,7 +295,7 @@ void QVTKFBORenderer::handleMouse(std::shared_ptr<QEvent> mouseevent, vtkSmartPo
 {
     QMouseEvent *mouse = static_cast<QMouseEvent *>(mouseevent.get());
 //    qDebug() << "point: " << mouse << m_Interactor->GetEventPosition()[0] << " "<< m_Interactor->GetEventPosition()[1];
-    m_Interactor->GetPicker()->Pick(mouse->x(),mouse->y(),0,renderWindow->GetRenderers()->GetFirstRenderer());
+    renderWindow->GetInteractor()->GetPicker()->Pick(mouse->x(),mouse->y(),0,m_renderer);
     double picked[3];
     picker->GetPickPosition(picked);
     QString ans = QString("picked point: (%1,%2,%3)").arg(picked[0],3).arg(picked[1],3).arg(picked[2],3);
@@ -333,7 +333,6 @@ void QVTKFBORenderer::handleMouse(std::shared_ptr<QEvent> mouseevent, vtkSmartPo
                     tmp->SetScale(*s*.5);
                 }
             }
-//            update();
         }
     }
     emit m_fboItem->message(ans);
@@ -366,9 +365,11 @@ void QVTKFBORenderer::synchronize(QQuickFramebufferObject *item) {
 //            m_renderer->GetActiveCamera()->ApplyTransform(trans);
 
             if(selected_Prop){
+                auto pos= selected_Prop->GetPosition();
                 qDebug() << "m_fboItem->m_pose = " << m_fboItem->m_pose<<m_fboItem->m_position;
-                selected_Prop->AddOrientation(trans->GetOrientation());
                 selected_Prop->AddPosition(trans->GetPosition());
+                selected_Prop->SetOrigin(-pos[0],-pos[1],-pos[2]);
+                selected_Prop->AddOrientation(trans->GetOrientation());
                 selected_Prop->SetScale(trans->GetScale());
             }
         }

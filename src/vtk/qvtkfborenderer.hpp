@@ -48,7 +48,6 @@ private:
 
     vtkSmartPointer<vtkExternalOpenGLRenderWindow> renderWindow;
     QVTKInteractorAdapter* m_dapter;
-    vtkSmartPointer<QVTKInteractor> m_Interactor;
     vtkSmartPointer<vtkRenderer> m_renderer;
     vtkProp3D* selected_Prop;
 
